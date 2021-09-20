@@ -45,7 +45,8 @@ class script:
             i += 1
 
         for x in l:
-            k = x.lstrip(" \t").partition(" ")
+            k = list(x.lstrip(" \t").partition(" "))
+            k[0] = k[0].lstrip("{")
             if k[2].startswith("{"):
                 d[k[0]] = k[2][1:-1]
             else:
@@ -159,7 +160,7 @@ class entity:
     def use(self,item):
         #对此使用物品
         if varDict.get("item." + item) == 1:
-            script.exec(self.events["use"].get(type,self.events["use"]["default"]))
+            script.exec(self.events["use"].get(item,self.events["use"]["default"]))
         else:
             msg("我知道我是个人工智障，但你似乎没有这个物品。可以尝试输入“查看物品栏”来查看自己都有什么。")
 
@@ -358,3 +359,5 @@ def main():
                 textParser(inputLog[-1])
         else:
             textParser(inputLog[-1])
+
+main()
