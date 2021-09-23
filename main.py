@@ -2,12 +2,6 @@
 
 class script:
     #游戏脚本解析器对象
-    def goto(self,name):
-        #转换场景
-        stage.clear()
-        p1 = gameScript.find("<{}>".format(name)) + len(name) + 2
-        p2 = gameScript.find("</{}>".format(name))
-        self.exec(gameScript[p1:p2])
 
     def exec(self,code):
         t = code.replace("\r","").replace("\n","")
@@ -32,16 +26,17 @@ class script:
         l = [""]
         i = 0
         d = dict()
-        while i < len(code):
-            if code[i] == ";":
-                if code[i-1] == "\\":
+        c = code.replace("\r","").replace("\n","").replace("\t","")
+        while i < len(c):
+            if c[i] == ";":
+                if c[i-1] == "\\":
                     l[-1] += ";"
-                elif code[0:i].count("{") > code[0:i].count("}"):
+                elif c[0:i].count("{") - 1 > c[0:i].count("}"):
                     l[-1] += ";"
-                else:
+                elif i < len(c) - 1:
                     l.append("")
             else:
-                l[-1] += code[i]
+                l[-1] += c[i]
             i += 1
 
         for x in l:
@@ -51,7 +46,6 @@ class script:
                 d[k[0]] = k[2][1:-1]
             else:
                 d[k[0]] = k[2]
-
         return d
 
     def parseEvents(self,code):
@@ -103,9 +97,9 @@ class script:
         elif j == "say":
             say(l[1]," ".join(l[2:]))
         elif j == "goto":
-            self.goto(" ".join(l[1:]))
+            goto(" ".join(l[1:]))
         elif j == "ask":
-            ask(parseActList(l[1:]))
+            ask(self.parseActList(" ".join(l[1:])[1:-1]))
 
         elif j.startswith("[") and j.endswith("]"):
             #变量赋值和加值
@@ -212,16 +206,23 @@ def msg(text):
     input(text)
 
 def ask(selections):
-    i = 0
-    l = selections.items()
-    for x in range(len(l)):
-        print(str(i) + "   " + x[0])
-        count += 1
+    i = 1
+    for x in selections:
+        print(str(i) + "   " + x)
+        i += 1
     while True:
-        input = input("输入你的选择 >>> ")
-        if input.isnumeric() and int(input) in range(1,len(l)):
-            script.exec(l[input][1])
+        inp = input("输入你的选择 >>> ")
+        if inp.isnumeric() and int(inp) in range(1,len(selections)):
+            num = int(inp) - 1
+            script.exec(list(selections.values())[num])
         return None
+    
+def goto(name):
+    #转换场景
+    stage.clear()
+    p1 = gameScript.find("<{}>".format(name)) + len(name) + 2
+    p2 = gameScript.find("</{}>".format(name))
+    script.exec(gameScript[p1:p2])
 
 def findEntity(name):#找到舞台上第一个可以被称作name的实体
     for x in stage:
@@ -256,7 +257,7 @@ def textParser(text):
                 msg("我知道我是个人工智障，但是我找不到“{}”这个东西".format(targetName))
             else:
                 findEntity(targetName).use(item)
-        
+
     else:
         for i in actions:
             if li[0] in actions[i]:
@@ -302,7 +303,7 @@ def textParser(text):
             print("如果你想观察周围（获取场景中所有可交互物体的列表），你可以输入环顾四周、观察四周、观察周围、查看四周、查看周围")
             print("如果你想看看你都有什么物品，你可以输入查看物品、查看物品栏、查看物品列表、查看物品清单、物品、物品栏、物品列表、物品清单、打开物品栏、打开物品列表、打开物品清单")
             print("最后，如果你想再次查看这些说明的话，请输入“帮助”。")
-        else:
+        elif text != "":
             msg("完全听不懂你在说什么呢")
 
 #————主进程————
@@ -318,7 +319,7 @@ def main():
         inp = input("输入你的选择 >>> ")
         if inp in {"1","2"}:
             if inp == "1":
-                script.goto("beginning")
+                goto("beginning")
             else:
                 f = open("save",encoding="utf-8")
                 saveCode = f.read()
@@ -338,7 +339,7 @@ def main():
     inputLog = ["","","","","","","","",""]
     while True:
         save()
-        inputLog.append(input("输入操作 >>> "))
+        inputLog.append(input("输入操作 >>> ").lstrip(" "))
         inputLog.pop(0)
         if inputLog[-1] != "":
             if inputLog[-1][0] == "/":
