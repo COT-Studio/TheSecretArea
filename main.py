@@ -94,6 +94,8 @@ class script:
         j = l[0]
         if j == "msg":
             msg(" ".join(l[1:]))
+        if j == "noEntity":
+            msg("现在周围没有“{}”这个东西".format(l[1:]))
         elif j == "say":
             say(l[1]," ".join(l[2:]))
         elif j == "goto":
@@ -136,7 +138,7 @@ class script:
             p2 = code.rindex("}")
             p3 = code.index("events {") + 8
             p4 = code.rindex("}",0,p2)
-            names = eval("{" + code[code.find("(") + 1:code.find(")")] + "}")
+            names = eval(('{"' + code[code.find("(") + 1:code.find(")")] + '"}').replace(",",'","'))
             intro = code[p1:code.index("events {")]
             events = self.parseEvents(code[p3:p4])
             stage.append(entity(names,intro,events))
@@ -156,7 +158,7 @@ class entity:
         if varDict.get("item." + item) == 1:
             script.exec(self.events["use"].get(item,self.events["use"]["default"]))
         else:
-            msg("我知道我是个人工智障，但你似乎没有这个物品。可以尝试输入“查看物品栏”来查看自己都有什么。")
+            msg("你似乎没有这个物品。可以尝试输入“查看物品栏”来查看自己都有什么。")
 
     def introduce(self):
         #环顾四周时此实体的提示
@@ -244,7 +246,7 @@ def textParser(text):
             item = li[1]
             targetName = li[3]
             if findEntity(targetName) == None:
-                msg("我知道我是个人工智障，但是我找不到“{}”这个东西".format(targetName))
+                msg("现在周围没有“{}”这个东西".format(targetName))
             else:
                 findEntity(targetName).use(item)
     elif li[0] in {"对","对着"} and li[2] in {"使用","用","出示","展示"}:
@@ -254,7 +256,7 @@ def textParser(text):
             item = li[3]
             targetName = li[1]
             if findEntity(targetName) == None:
-                msg("我知道我是个人工智障，但是我找不到“{}”这个东西".format(targetName))
+                msg("现在周围没有“{}”这个东西".format(targetName))
             else:
                 findEntity(targetName).use(item)
 
@@ -266,7 +268,7 @@ def textParser(text):
                 else:
                     targetName = " ".join(li[1:])
                     if findEntity(targetName) == None:
-                        msg("我知道我是个人工智障，但是我找不到“{}”这个东西".format(targetName))
+                        msg("现在周围没有“{}”这个东西".format(targetName))
                     else:
                         findEntity(targetName).do(i)
                 return None
