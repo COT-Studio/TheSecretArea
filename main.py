@@ -31,7 +31,7 @@ class script:
             if c[i] == ";":
                 if c[i-1] == "\\":
                     l[-1] += ";"
-                elif c[0:i].count("{") - 1 > c[0:i].count("}"):
+                elif c[0:i].count("{") > c[0:i].count("}"):
                     l[-1] += ";"
                 elif i < len(c) - 1:
                     l.append("")
@@ -94,14 +94,16 @@ class script:
         j = l[0]
         if j == "msg":
             msg(" ".join(l[1:]))
-        if j == "noEntity":
-            msg("现在周围没有“{}”这个东西".format(l[1:]))
         elif j == "say":
             say(l[1]," ".join(l[2:]))
         elif j == "goto":
             goto(" ".join(l[1:]))
         elif j == "ask":
             ask(self.parseActList(" ".join(l[1:])[1:-1]))
+        elif j == "show":
+            findEntity(" ".join(l[1:])).show()
+        elif j == "hide":
+            findEntity(" ".join(l[1:])).hide()
 
         elif j.startswith("[") and j.endswith("]"):
             #变量赋值和加值
@@ -144,6 +146,9 @@ class script:
             stage.append(entity(names,intro,events))
 
 class entity:
+
+    display = True
+
     def __init__(self,names,intro,events):
         self.names = names#表示此实体所有可能的名称
         self.intro = intro
@@ -162,7 +167,13 @@ class entity:
 
     def introduce(self):
         #环顾四周时此实体的提示
-        script.exec(self.intro)
+        script.exec(self.intro,"")
+
+    def show(self):
+        self.display = True
+
+    def hide(self):
+        self.display = False
 
 #————变量————
 
@@ -214,17 +225,20 @@ def ask(selections):
         i += 1
     while True:
         inp = input("输入你的选择 >>> ")
-        if inp.isnumeric() and int(inp) in range(1,len(selections)):
+        if inp.isnumeric() and int(inp) in range(1,len(selections) + 1):
             num = int(inp) - 1
             script.exec(list(selections.values())[num])
-        return None
+            return None
     
 def goto(name):
     #转换场景
     stage.clear()
-    p1 = gameScript.find("<{}>".format(name)) + len(name) + 2
-    p2 = gameScript.find("</{}>".format(name))
-    script.exec(gameScript[p1:p2])
+    if "<{}>".format(name) in gameScript:
+        p1 = gameScript.index("<{}>".format(name)) + len(name) + 2
+        p2 = gameScript.index("</{}>".format(name))
+        script.exec(gameScript[p1:p2])
+    else:
+        raise KeyError("不存在名为“{}”的stage".format(name))
 
 def findEntity(name):#找到舞台上第一个可以被称作name的实体
     for x in stage:
@@ -245,7 +259,8 @@ def textParser(text):
         else:
             item = li[1]
             targetName = li[3]
-            if findEntity(targetName) == None:
+            target = findEntity(targetName)
+            if target == None or not target.display:
                 msg("现在周围没有“{}”这个东西".format(targetName))
             else:
                 findEntity(targetName).use(item)
@@ -255,10 +270,11 @@ def textParser(text):
         else:
             item = li[3]
             targetName = li[1]
-            if findEntity(targetName) == None:
+            target = findEntity(targetName)
+            if target == None or not target.display:
                 msg("现在周围没有“{}”这个东西".format(targetName))
             else:
-                findEntity(targetName).use(item)
+                target.use(item)
 
     else:
         for i in actions:
@@ -267,10 +283,11 @@ def textParser(text):
                     msg("你这话别说半截啊。")
                 else:
                     targetName = " ".join(li[1:])
-                    if findEntity(targetName) == None:
+                    target = findEntity(targetName)
+                    if target == None or not target.display:
                         msg("现在周围没有“{}”这个东西".format(targetName))
                     else:
-                        findEntity(targetName).do(i)
+                        target.do(i)
                 return None
         if text in {"环顾四周","观察四周","观察周围","查看四周","查看周围"}:
             if len(stage) == 0:
