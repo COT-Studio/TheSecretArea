@@ -167,7 +167,7 @@ class entity:
 
     def introduce(self):
         #环顾四周时此实体的提示
-        script.exec(self.intro,"")
+        script.exec(self.intro)
 
     def show(self):
         self.display = True
