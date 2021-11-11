@@ -104,6 +104,12 @@ class script:
             findEntity(" ".join(l[1:])).show()
         elif j == "hide":
             findEntity(" ".join(l[1:])).hide()
+        elif j == "getItem":
+            if " ".join(l[1:]) not in items:
+                items.append(" ".join(l[1:]))
+        elif j == "removeItem":
+            if " ".join(l[1:]) in items:
+                items.remove(" ".join(l[1:]))
 
         elif j.startswith("[") and j.endswith("]"):
             #变量赋值和加值
@@ -119,7 +125,10 @@ class script:
             p1 = code.index("(") + 1
             p2 = code.index(")",p1,len(code))
             i = code.index("{") + 1
-            b = eval(code[p1:p2].replace("[","varDict.get('").replace("]","')"))
+            def f(x,y):
+                #这个y是我偷懒用的，没有任何实际作用
+                return x in items
+            b = eval(code[p1:p2].replace("item[","f('").replace("[","varDict.get('").replace("]","',0)"))
             l = [""]
             while i < len(code):
                 if code[i:i+8] == "} else {" and code[0:i+1].count("{") == code[0:i+1].count("}"):
@@ -160,7 +169,7 @@ class entity:
 
     def use(self,item):
         #对此使用物品
-        if varDict.get("item." + item) == 1:
+        if item in items:
             script.exec(self.events["use"].get(item,self.events["use"]["default"]))
         else:
             msg("你似乎没有这个物品。可以尝试输入“查看物品栏”来查看自己都有什么。")
@@ -184,6 +193,7 @@ for x in f:
 f.close()
 stage = list()
 varDict = dict()
+items = list()
 actions = {
     "walkTo":{"走向","走到","移到","移动到"},
     "lookAt":{"查看","察看","观察","检查","检察","调查"},
@@ -212,13 +222,13 @@ def save():
     f.write("<__Delimiter__>".join((str(stageInfo),str(varDict))))
     f.close()
 
-def say(name,text):
+def say(name:str,text:str):
     msg("   ".join((name,text)))
 
-def msg(text):
+def msg(text:str):
     input(text)
 
-def ask(selections):
+def ask(selections:dict):
     i = 1
     for x in selections:
         print(str(i) + "   " + x)
@@ -229,8 +239,8 @@ def ask(selections):
             num = int(inp) - 1
             script.exec(list(selections.values())[num])
             return None
-    
-def goto(name):
+
+def goto(name:str):
     #转换场景
     stage.clear()
     if "<{}>".format(name) in gameScript:
@@ -240,13 +250,13 @@ def goto(name):
     else:
         raise KeyError("不存在名为“{}”的stage".format(name))
 
-def findEntity(name):#找到舞台上第一个可以被称作name的实体
+def findEntity(name:str):#找到舞台上第一个可以被称作name的实体
     for x in stage:
         if name in x.names:
             return x
     return None
 
-def textParser(text):
+def textParser(text:str):
     #世界上最不近人情的文本解析器
     #基本指令：走向（walkTo），查看（lookAt），捡起（pickUp），打开（open）
     #关闭（close），交谈（talkTo），推（push），拉（pull），使用物品（use）
@@ -300,14 +310,10 @@ def textParser(text):
             "物品","物品栏","物品列表","物品清单",
             "打开物品栏","打开物品列表","打开物品清单"
         }:
-            itemList = []
-            for i in varDict:
-                if i.startswith("item.") and varDict[i] == 1:
-                    itemList.append(i[5:])
-            if len(itemList) == 0:
+            if len(items) == 0:
                 msg("你现在什么也没有，你个穷光蛋！")
             else:
-                msg("你现在有：" + "、".join(itemList) + "。")
+                msg("你现在有：" + "、".join(items) + "。")
         elif text == "帮助":
             print("大部分操作的格式都是“操作名称 目标”，注意中间有一个空格")
             print("如果你想走向一个地方，操作名称可以是：" + str(actions["walkTo"]))
