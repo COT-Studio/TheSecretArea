@@ -121,3 +121,13 @@ entity (箱子,箱,宝箱) {
     }
 }
 ```
+event用于定义与实体关联的事件。可用的事件有：  
+* walkTo：走向
+* lookAt：查看
+* pickUp：捡起
+* open：打开
+* close：关闭
+* talkTo：交谈
+* push：推
+* pull：拉
+* use：使用物品

@@ -78,7 +78,7 @@ class script:
             d["use"]["default"] = "msg 这东西在这没用！"
 
         d.setdefault("walkTo","msg 走不到")
-        d.setdefault("LookAt","msg 看不见")
+        d.setdefault("lookAt","msg 看不见")
         d.setdefault("pickUp","msg 捡不起来")
         d.setdefault("open","msg 打不开")
         d.setdefault("close","msg 关不上")
