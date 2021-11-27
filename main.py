@@ -105,11 +105,11 @@ class script:
         elif j == "hide":
             findEntity(" ".join(l[1:])).hide()
         elif j == "getItem":
-            if " ".join(l[1:]) not in items:
-                items.append(" ".join(l[1:]))
+            if " ".join(l[1:]) not in varDict[".items"]:
+                varDict[".items"].append(" ".join(l[1:]))
         elif j == "removeItem":
-            if " ".join(l[1:]) in items:
-                items.remove(" ".join(l[1:]))
+            if " ".join(l[1:]) in varDict[".items"]:
+                varDict[".items"].remove(" ".join(l[1:]))
 
         elif j.startswith("[") and j.endswith("]"):
             #变量赋值和加值
@@ -127,7 +127,7 @@ class script:
             i = code.index("{") + 1
             def f(x,y):
                 #这个y是我偷懒用的，没有任何实际作用
-                return x in items
+                return x in varDict[".items"]
             b = eval(code[p1:p2].replace("item[","f('").replace("[","varDict.get('").replace("]","',0)"))
             l = [""]
             while i < len(code):
@@ -169,7 +169,7 @@ class entity:
 
     def use(self,item):
         #对此使用物品
-        if item in items:
+        if item in varDict[".items"]:
             script.exec(self.events["use"].get(item,self.events["use"]["default"]))
         else:
             msg("你似乎没有这个物品。可以尝试输入“查看物品栏”来查看自己都有什么。")
@@ -192,8 +192,7 @@ for x in f:
     gameScript += x.lstrip(" \t")
 f.close()
 stage = list()
-varDict = dict()
-items = list()
+varDict = {".items":list()}
 actions = {
     "walkTo":{"走向","走到","移到","移动到"},
     "lookAt":{"查看","察看","观察","检查","检察","调查"},
@@ -310,10 +309,10 @@ def textParser(text:str):
             "物品","物品栏","物品列表","物品清单",
             "打开物品栏","打开物品列表","打开物品清单"
         }:
-            if len(items) == 0:
+            if len(varDict[".items"]) == 0:
                 msg("你现在什么也没有，你个穷光蛋！")
             else:
-                msg("你现在有：" + "、".join(items) + "。")
+                msg("你现在有：" + "、".join(varDict[".items"]) + "。")
         elif text == "帮助":
             print("大部分操作的格式都是“操作名称 目标”，注意中间有一个空格")
             print("如果你想走向一个地方，操作名称可以是：" + str(actions["walkTo"]))
