@@ -114,12 +114,12 @@ class script:
         elif j.startswith("[") and j.endswith("]"):
             #变量赋值和加值
             if l[1] == "=":
-                varDict[j[1:-1]] = eval(" ".join(l[2:]))
+                varDict[j[1:-1]] = int(" ".join(l[2:]))
             elif l[1] == "+=":
                 if varDict.get(j[1:-1]) == None:
-                    varDict[j[1:-1]] = eval(" ".join(l[2:]))
+                    varDict[j[1:-1]] = int(" ".join(l[2:]))
                 else:
-                    varDict[j[1:-1]] += eval(" ".join(l[2:]))
+                    varDict[j[1:-1]] += int(" ".join(l[2:]))
 
         elif j == "if":
             p1 = code.index("(") + 1
