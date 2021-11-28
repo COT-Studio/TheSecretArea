@@ -115,7 +115,7 @@ class script:
             #变量赋值和加值
             if l[1] == "=":
                 varDict[j[1:-1]] = eval(" ".join(l[2:]))
-            if l[1] == "+=":
+            elif l[1] == "+=":
                 if varDict.get(j[1:-1]) == None:
                     varDict[j[1:-1]] = eval(" ".join(l[2:]))
                 else:
@@ -348,7 +348,7 @@ def main():
                 f = open("save",encoding="utf-8")
                 saveCode = f.read()
                 if saveCode == "<__save is empty,do not modify this text__>":
-                    script.goto("beginning")
+                    goto("beginning")
                 else:
                     l = saveCode.partition("<__Delimiter__>")
                     global stage
