@@ -101,7 +101,14 @@ else是可选的。
 CONDITION中可以填入`[VARNAME] ==/>/>=/</<= NUMBER`（判断一个变量的值），`item[NAME]`（判断玩家是否拥有一个物品），`and/or/not`（逻辑与或非）
 
 `entity (NAME1,NAME2,...) {INTRODUCTION;events {EVENT1 {CODEBLOCK1};EVENT2 {CODEBLOCK2};...}`:定义一个实体。  
-INTRODUCTION（events之前的代码块）为玩家执行“环顾四周”（遍历实体表）时执行的代码。
+INTRODUCTION（events之前的代码块）为玩家执行“环顾四周”（遍历实体表）时执行的代码。  
+实体名称仅可以包含：
+
+* 英文字母，区分大小写
+* 数字
+* 下划线
+* 中文
+
 一个简单的例子：  
 ```
 entity (箱子,箱,宝箱) {
@@ -132,7 +139,7 @@ entity (箱子,箱,宝箱) {
     }
 }
 ```
-event用于定义与实体关联的事件。可用的事件有：  
+events用于定义与实体关联的事件。可用的事件有：  
 * walkTo：走向
 * lookAt：查看
 * pickUp：捡起
