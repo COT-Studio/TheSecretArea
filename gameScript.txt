@@ -37,7 +37,7 @@
 			};
 			use {
 				信 {
-					getItem 信;
+					removeItem 信;
 					say 马可 ……;
 					say 马可 我把信又放回去了。;
 					if ([信箱状态] == 1) {
