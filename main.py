@@ -343,6 +343,7 @@ def main():
         inp = input("输入你的选择 >>> ")
         if inp in {"1","2"}:
             if inp == "1":
+                msg("输入“帮助”可以获取操作提示。")
                 goto("beginning")
             else:
                 f = open("save",encoding="utf-8")
